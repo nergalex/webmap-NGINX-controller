@@ -12,7 +12,7 @@ extra_app:
   name: WebMap
 extra_idp:
   - name: dev-*******.okta.com
-    jwks_uri: 'https://dev-431905.okta.com/oauth2/default/v1/keys'
+    jwks_uri: 'https://dev-*******.okta.com/oauth2/default/v1/keys'
 extra_nginx_controller_environment: POC
 extra_nginx_controller_ip: 10.0.0.16
 extra_nginx_controller_password: *******
