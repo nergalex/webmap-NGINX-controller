@@ -1,0 +1,246 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "description": "Arcadia OpenAPI",
+    "title": "API Arcadia Finance",
+    "version": "1.0.0-oas3"
+  },
+  "paths": {
+    "/api/rest/execute_money_transfer.php": {
+      "post": {
+        "summary": "Transfer money to a friend",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "amount": "92",
+                "account": "2075894",
+                "currency": "GBP",
+                "friend": "Vincent"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "query",
+            "name": "amount",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "account",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "currency",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "friend",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "name": "Vincent",
+                  "status": "success",
+                  "currency": "GBP",
+                  "transid": "524569855",
+                  "msg": "The money transfer has been successfully completed"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trading/rest/buy_stocks.php": {
+      "post": {
+        "summary": "Add stocks to your portfolio",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "trans_value": "312",
+                "qty": "16",
+                "company": "MSFT",
+                "action": "buy",
+                "stock_price": "198"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "query",
+            "name": "trans_value",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "qty",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "company",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "action",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "stock_price",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "success",
+                  "name": "Microsoft",
+                  "qty": "16",
+                  "amount": "312",
+                  "transid": "855415223"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trading/rest/sell_stocks.php": {
+      "post": {
+        "summary": "Sell stocks that you own",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "trans_value": "212",
+                "qty": "16",
+                "company": "MSFT",
+                "action": "sell",
+                "stock_price": "158"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "query",
+            "name": "trans_value",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "qty",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "company",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "action",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "stock_price",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "success",
+                  "name": "Microsoft",
+                  "qty": "16",
+                  "amount": "212",
+                  "transid": "658854124"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trading/transactions.php": {
+      "get": {
+        "summary": "Get the latests transactions that have happened",
+        "responses": {
+          "200": {
+            "description": "200 response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "YourLastTransaction": "MFST 2000"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
