@@ -1,52 +1,62 @@
-- name: Create a Component "user NOT authenticated"
+- name: Create a Component ADC
+  uri:
+    url: "https://{{ extra_nginx_controller_ip }}/api/v1/services/environments/env_{{ extra_nginx_controller_environment | lower }}/apps/app_{{ extra_app.name | lower }}.{{ extra_app.domain | lower }}/components/adc_{{ item.name | lower }}"
+    method: GET
+    headers:
+      "Cookie": "{{ stats_session }}"
+    return_content: yes
+    validate_certs: no
+    status_code: 200
+  loop: "{{ extra_app.components }}"
+  when: item.type == "adc"
+  register: results
+
+- debug:
+    var: results
+
+- name: Create a Component API "user NOT authenticated"
   uri:
     url: "https://{{ extra_nginx_controller_ip }}/api/v1/services/environments/env_{{ extra_nginx_controller_environment | lower }}/apps/app_{{ extra_app.name | lower }}.{{ extra_app.domain | lower }}/components/no-auth_{{ item.name | lower }}"
     method: GET
     headers:
-      "Content-Type": "application/json"
       "Cookie": "{{ stats_session }}"
-    body: "{{ lookup('template','component-no_auth.json') }}"
-    body_format: json
     return_content: yes
     validate_certs: no
-    status_code: 200, 201, 202
+    status_code: 200
   loop: "{{ extra_app.components }}"
+  when: item.type == "api"
   register: results
 
 - debug:
     var: results
 
-- name: Create a Component "Authenticated users"
+- name: Create a Component API "Authenticated users"
   uri:
     url: "https://{{ extra_nginx_controller_ip }}/api/v1/services/environments/env_{{ extra_nginx_controller_environment | lower }}/apps/app_{{ extra_app.name | lower }}.{{ extra_app.domain | lower }}/components/auth_{{ item.name | lower }}"
     method: GET
     headers:
-      "Content-Type": "application/json"
       "Cookie": "{{ stats_session }}"
-    body: "{{ lookup('template','component-auth.json') }}"
-    body_format: json
     return_content: yes
     validate_certs: no
-    status_code: 200, 201, 202
+    status_code: 200
   loop: "{{ extra_app.components }}"
+  when: item.type == "api" and item.identityProviders is defined
   register: results
 
 - debug:
     var: results
 
-- name: Create a Component "Admin users"
+- name: Create a Component API "Admin users"
   uri:
     url: "https://{{ extra_nginx_controller_ip }}/api/v1/services/environments/env_{{ extra_nginx_controller_environment | lower }}/apps/app_{{ extra_app.name | lower }}.{{ extra_app.domain | lower }}/components/admin_{{ item.name | lower }}"
     method: GET
     headers:
-      "Content-Type": "application/json"
       "Cookie": "{{ stats_session }}"
-    body: "{{ lookup('template','component-admin.json') }}"
-    body_format: json
     return_content: yes
     validate_certs: no
-    status_code: 200, 201, 202
+    status_code: 200
   loop: "{{ extra_app.components }}"
+  when: item.type == "api" and item.identityProviders is defined
   register: results
 
 - debug:

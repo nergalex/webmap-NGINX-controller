@@ -1,3 +1,33 @@
+- name: Create an Identity Provider - issue workaround - create per Component
+  uri:
+    url: "https://{{ extra_nginx_controller_ip }}/api/v1/security/identity-providers/idp_{{item.name | lower }}_{{item.identityProviders.0 | lower }}"
+    method: PUT
+    headers:
+      "Content-Type": "application/json"
+      "Cookie": "{{ stats_session }}"
+    body: "{{ lookup('template','identity_provider.json') }}"
+    body_format: json
+    return_content: yes
+    validate_certs: no
+    status_code: 200, 201, 202
+  loop: "{{ extra_app.components }}"
+  when: item.type == "api" and item.identityProviders is defined
+
+- name: Create an Identity Provider - issue workaround - create per Component BIS
+  uri:
+    url: "https://{{ extra_nginx_controller_ip }}/api/v1/security/identity-providers/idp_bis_{{item.name | lower }}_{{item.identityProviders.0 | lower }}"
+    method: PUT
+    headers:
+      "Content-Type": "application/json"
+      "Cookie": "{{ stats_session }}"
+    body: "{{ lookup('template','identity_provider_bis.json') }}"
+    body_format: json
+    return_content: yes
+    validate_certs: no
+    status_code: 200, 201, 202
+  loop: "{{ extra_app.components }}"
+  when: item.type == "api" and item.identityProviders is defined
+
 - name: CREATE API Definition
   uri:
     url: "https://{{ extra_nginx_controller_ip }}/api/v1/services/api-definitions/api_{{ item.name | lower}}"
@@ -11,6 +41,7 @@
     validate_certs: no
     status_code: 200, 201
   loop: "{{ extra_app.components }}"
+  when: item.type == "api"
 
 - name: CREATE API Definition Version
   uri:
@@ -25,6 +56,7 @@
     validate_certs: no
     status_code: 200, 201
   loop: "{{ extra_app.components }}"
+  when: item.type == "api"
 
 - name: FETCH an API Definition Version
   uri:
@@ -35,6 +67,7 @@
     status_code: 200
   register: var_openapi_spec
   loop: "{{ extra_app.components }}"
+  when: item.type == "api"
 
 - name: IMPORT an API Definition Version
   uri:
@@ -51,19 +84,7 @@
   loop: "{{ extra_app.components }}"
   loop_control:
     index_var: index
-
-- name: CREATE an App
-  uri:
-    url: "https://{{ extra_nginx_controller_ip }}/api/v1/services/environments/env_{{ extra_nginx_controller_environment | lower }}/apps/app_{{ extra_app.name | lower }}.{{ extra_app.domain | lower }}"
-    method: PUT
-    headers:
-      "Content-Type": "application/json"
-      "Cookie": "{{ stats_session }}"
-    body: "{{ lookup('template','application.json') }}"
-    body_format: json
-    return_content: yes
-    validate_certs: no
-    status_code: 200, 201, 202
+  when: item.type == "api"
 
 - name: CREATE a Published API version for each App's component
   uri:
@@ -78,34 +99,7 @@
     validate_certs: no
     status_code: 200, 201, 202
   loop: "{{ extra_app.components }}"
-
-- name: Create an Identity Provider
-  uri:
-    url: "https://{{ extra_nginx_controller_ip }}/api/v1/security/identity-providers/idp_{{item.name}}"
-    method: PUT
-    headers:
-      "Content-Type": "application/json"
-      "Cookie": "{{ stats_session }}"
-    body: "{{ lookup('template','identity_provider.json') }}"
-    body_format: json
-    return_content: yes
-    validate_certs: no
-    status_code: 200, 201, 202
-  loop: "{{ extra_idp }}"
-
-- name: Create an Identity Provider - issue
-  uri:
-    url: "https://{{ extra_nginx_controller_ip }}/api/v1/security/identity-providers/idp_{{item.name}}_issue"
-    method: PUT
-    headers:
-      "Content-Type": "application/json"
-      "Cookie": "{{ stats_session }}"
-    body: "{{ lookup('template','identity_provider.json') }}"
-    body_format: json
-    return_content: yes
-    validate_certs: no
-    status_code: 200, 201, 202
-  loop: "{{ extra_idp }}"
+  when: item.type == "api"
 
 - name: Create a Component "user NOT authenticated"
   uri:
@@ -114,12 +108,13 @@
     headers:
       "Content-Type": "application/json"
       "Cookie": "{{ stats_session }}"
-    body: "{{ lookup('template','component-no_auth.json') }}"
+    body: "{{ lookup('template','component_api-no_auth.json') }}"
     body_format: json
     return_content: yes
     validate_certs: no
     status_code: 200, 201, 202
   loop: "{{ extra_app.components }}"
+  when: item.type == "api"
 
 - name: Create a Component "Authenticated users"
   uri:
@@ -128,12 +123,13 @@
     headers:
       "Content-Type": "application/json"
       "Cookie": "{{ stats_session }}"
-    body: "{{ lookup('template','component-auth.json') }}"
+    body: "{{ lookup('template','component_api-auth.json') }}"
     body_format: json
     return_content: yes
     validate_certs: no
     status_code: 200, 201, 202
   loop: "{{ extra_app.components }}"
+  when: item.type == "api" and item.identityProviders is defined
 
 - name: Create a Component "Admin users"
   uri:
@@ -142,11 +138,11 @@
     headers:
       "Content-Type": "application/json"
       "Cookie": "{{ stats_session }}"
-    body: "{{ lookup('template','component-admin.json') }}"
+    body: "{{ lookup('template','component_api-admin.json') }}"
     body_format: json
     return_content: yes
     validate_certs: no
     status_code: 200, 201, 202
   loop: "{{ extra_app.components }}"
-
+  when: item.type == "api" and item.identityProviders is defined
 
