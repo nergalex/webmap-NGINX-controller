@@ -1,0 +1,58 @@
+- name: Create Environment
+  uri:
+    url: "https://{{ extra_nginx_controller_ip }}/api/v1/services/environments"
+    method: POST
+    headers:
+      "Content-Type": "application/json"
+      "Cookie": "{{ stats_session }}"
+    body: "{{ lookup('template','environment.json') }}"
+    body_format: json
+    return_content: yes
+    validate_certs: no
+    status_code: 201, 202, 409
+
+- name: GET GW instances ID
+  uri:
+    url: "https://{{ extra_nginx_controller_ip }}/api/v1/infrastructure/locations/unspecified/instances"
+    method: GET
+    headers:
+      "Content-Type": "application/json"
+      "Cookie": "{{ stats_session }}"
+    body_format: json
+    return_content: yes
+    validate_certs: no
+    status_code: 200
+  register: gateways
+
+- debug:
+    var: gateways
+
+- name: INIT var_gw_ids
+  set_fact:
+    var_gw_ids: []
+
+- name: SET var_gw_ids
+  set_fact:
+    var_gw_ids: "{{ var_gw_ids }} + [ {
+      'name': '{{ item.metadata.name }}'
+    }]"
+  loop: "{{ gateways.json['items'] }}"
+  when: item.currentStatus.hostname is search("{{ extra_vmss_name }}.*")
+
+- debug:
+    var: var_gw_ids
+
+- name: Create Gateways
+  uri:
+    url: "https://{{ extra_nginx_controller_ip }}/api/v1/services/environments/env_{{extra_nginx_controller_environment | lower}}/gateways/gw_{{extra_vmss_name | lower}}"
+    method: PUT
+    headers:
+      "Content-Type": "application/json"
+      "Cookie": "{{ stats_session }}"
+    body: "{{ lookup('template','gateway.json') }}"
+    body_format: json
+    return_content: yes
+    validate_certs: no
+    status_code: 200, 201, 202
+
+

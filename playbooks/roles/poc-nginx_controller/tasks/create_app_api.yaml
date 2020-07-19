@@ -1,0 +1,152 @@
+- name: CREATE API Definition
+  uri:
+    url: "https://{{ extra_nginx_controller_ip }}/api/v1/services/api-definitions/api_{{ item.name | lower}}"
+    method: PUT
+    headers:
+      "Content-Type": "application/json"
+      "Cookie": "{{ stats_session }}"
+    body: "{{ lookup('template','api_definition.json') }}"
+    body_format: json
+    return_content: yes
+    validate_certs: no
+    status_code: 200, 201
+  loop: "{{ extra_app.components }}"
+
+- name: CREATE API Definition Version
+  uri:
+    url: "https://{{ extra_nginx_controller_ip }}/api/v1/services/api-definitions/api_{{ item.name | lower}}/versions/{{ item.version | lower}}"
+    method: PUT
+    headers:
+      "Content-Type": "application/json"
+      "Cookie": "{{ stats_session }}"
+    body: "{{ lookup('template','api_definition_version.json') }}"
+    body_format: json
+    return_content: yes
+    validate_certs: no
+    status_code: 200, 201
+  loop: "{{ extra_app.components }}"
+
+- name: FETCH an API Definition Version
+  uri:
+    url: "{{ item.openapi_spec_uri }}"
+    method: GET
+    return_content: yes
+    validate_certs: no
+    status_code: 200
+  register: var_openapi_spec
+  loop: "{{ extra_app.components }}"
+
+- name: IMPORT an API Definition Version
+  uri:
+    url: "https://{{ extra_nginx_controller_ip }}/api/v1/services/api-definitions/api_{{ item.name | lower}}/versions/{{ item.version | lower}}/import"
+    method: PUT
+    headers:
+      "Content-Type": "application/json"
+      "Cookie": "{{ stats_session }}"
+    body: "{{ var_openapi_spec.results[index].json }}"
+    body_format: json
+    return_content: yes
+    validate_certs: no
+    status_code: 200, 201
+  loop: "{{ extra_app.components }}"
+  loop_control:
+    index_var: index
+
+- name: CREATE an App
+  uri:
+    url: "https://{{ extra_nginx_controller_ip }}/api/v1/services/environments/env_{{ extra_nginx_controller_environment | lower }}/apps/app_{{ extra_app.name | lower }}.{{ extra_app.domain | lower }}"
+    method: PUT
+    headers:
+      "Content-Type": "application/json"
+      "Cookie": "{{ stats_session }}"
+    body: "{{ lookup('template','application.json') }}"
+    body_format: json
+    return_content: yes
+    validate_certs: no
+    status_code: 200, 201, 202
+
+- name: CREATE a Published API version for each App's component
+  uri:
+    url: "https://{{ extra_nginx_controller_ip }}/api/v1/services/environments/env_{{ extra_nginx_controller_environment | lower }}/apps/app_{{ extra_app.name | lower }}.{{ extra_app.domain | lower }}/published-apis/api_{{ item.name | lower }}"
+    method: PUT
+    headers:
+      "Content-Type": "application/json"
+      "Cookie": "{{ stats_session }}"
+    body: "{{ lookup('template','published_api.json') }}"
+    body_format: json
+    return_content: yes
+    validate_certs: no
+    status_code: 200, 201, 202
+  loop: "{{ extra_app.components }}"
+
+- name: Create an Identity Provider
+  uri:
+    url: "https://{{ extra_nginx_controller_ip }}/api/v1/security/identity-providers/idp_{{item.name}}"
+    method: PUT
+    headers:
+      "Content-Type": "application/json"
+      "Cookie": "{{ stats_session }}"
+    body: "{{ lookup('template','identity_provider.json') }}"
+    body_format: json
+    return_content: yes
+    validate_certs: no
+    status_code: 200, 201, 202
+  loop: "{{ extra_idp }}"
+
+- name: Create an Identity Provider - issue
+  uri:
+    url: "https://{{ extra_nginx_controller_ip }}/api/v1/security/identity-providers/idp_{{item.name}}_issue"
+    method: PUT
+    headers:
+      "Content-Type": "application/json"
+      "Cookie": "{{ stats_session }}"
+    body: "{{ lookup('template','identity_provider.json') }}"
+    body_format: json
+    return_content: yes
+    validate_certs: no
+    status_code: 200, 201, 202
+  loop: "{{ extra_idp }}"
+
+- name: Create a Component "user NOT authenticated"
+  uri:
+    url: "https://{{ extra_nginx_controller_ip }}/api/v1/services/environments/env_{{ extra_nginx_controller_environment | lower }}/apps/app_{{ extra_app.name | lower }}.{{ extra_app.domain | lower }}/components/no-auth_{{ item.name | lower }}"
+    method: PUT
+    headers:
+      "Content-Type": "application/json"
+      "Cookie": "{{ stats_session }}"
+    body: "{{ lookup('template','component-no_auth.json') }}"
+    body_format: json
+    return_content: yes
+    validate_certs: no
+    status_code: 200, 201, 202
+  loop: "{{ extra_app.components }}"
+
+- name: Create a Component "Authenticated users"
+  uri:
+    url: "https://{{ extra_nginx_controller_ip }}/api/v1/services/environments/env_{{ extra_nginx_controller_environment | lower }}/apps/app_{{ extra_app.name | lower }}.{{ extra_app.domain | lower }}/components/auth_{{ item.name | lower }}"
+    method: PUT
+    headers:
+      "Content-Type": "application/json"
+      "Cookie": "{{ stats_session }}"
+    body: "{{ lookup('template','component-auth.json') }}"
+    body_format: json
+    return_content: yes
+    validate_certs: no
+    status_code: 200, 201, 202
+  loop: "{{ extra_app.components }}"
+
+- name: Create a Component "Admin users"
+  uri:
+    url: "https://{{ extra_nginx_controller_ip }}/api/v1/services/environments/env_{{ extra_nginx_controller_environment | lower }}/apps/app_{{ extra_app.name | lower }}.{{ extra_app.domain | lower }}/components/admin_{{ item.name | lower }}"
+    method: PUT
+    headers:
+      "Content-Type": "application/json"
+      "Cookie": "{{ stats_session }}"
+    body: "{{ lookup('template','component-admin.json') }}"
+    body_format: json
+    return_content: yes
+    validate_certs: no
+    status_code: 200, 201, 202
+  loop: "{{ extra_app.components }}"
+
+

@@ -1,0 +1,24 @@
+{
+  "metadata": {
+    "name": "gw_{{extra_vmss_name | lower}}",
+    "displayName": "Gateways {{extra_vmss_name | lower}}"
+  },
+  "desiredState": {
+    "ingress": {
+      "uris": {
+        "http://{{extra_app.name | lower}}.{{extra_app.domain | lower}}": {
+          "matchMethod": "EXACT"
+        }
+      },
+      "placement": {
+        "instanceRefs": [
+          {%- for gw in var_gw_ids -%}
+          {
+            "ref": "/infrastructure/locations/unspecified/instances/{{ gw.name }}"
+          }{%- if not loop.last -%},{% endif %}
+          {%- endfor -%}
+        ]
+      }
+    }
+  }
+}
