@@ -13,7 +13,7 @@
 
 - name: GET GW instances ID
   uri:
-    url: "https://{{ extra_nginx_controller_ip }}/api/v1/infrastructure/locations/unspecified/instances"
+    url: "https://{{ extra_nginx_controller_ip }}/api/v1/infrastructure/locations/{{ item.location }}/instances"
     method: GET
     headers:
       "Content-Type": "application/json"
@@ -22,6 +22,7 @@
     return_content: yes
     validate_certs: no
     status_code: 200
+  loop: "{{ extra_app.gateways }}"
   register: gateways
 
 - debug:
@@ -34,17 +35,23 @@
 - name: SET var_gw_ids
   set_fact:
     var_gw_ids: "{{ var_gw_ids }} + [ {
-      'name': '{{ item.metadata.name }}'
+      'name': '{{ item.json['items'].0.metadata.name }}',
+      'location': '{{ extra_app.gateways[index].location }}',
+      'ref': '{{ item.json['items'].0.metadata.ref }}'
     }]"
-  loop: "{{ gateways.json['items'] }}"
-  when: item.currentStatus.hostname is search("{{ extra_vmss_name }}.*")
+  loop: "{{ gateways.results }}"
+  loop_control:
+    index_var: index
+  when: item.json['items'].0.metadata.name == extra_app.gateways[index].instance
+  # search by VMSS name:
+  # when: item.currentStatus.hostname is search("{{ extra_app.gateways[index].instance }}.*")
 
 - debug:
     var: var_gw_ids
 
 - name: Create Gateways
   uri:
-    url: "https://{{ extra_nginx_controller_ip }}/api/v1/services/environments/env_{{extra_nginx_controller_environment | lower}}/gateways/gw_{{extra_vmss_name | lower}}"
+    url: "https://{{ extra_nginx_controller_ip }}/api/v1/services/environments/env_{{extra_nginx_controller_environment | lower}}/gateways/gw_{{extra_app.name | lower}}"
     method: PUT
     headers:
       "Content-Type": "application/json"
@@ -54,5 +61,11 @@
     return_content: yes
     validate_certs: no
     status_code: 200, 201, 202
+
+
+
+
+
+
 
 

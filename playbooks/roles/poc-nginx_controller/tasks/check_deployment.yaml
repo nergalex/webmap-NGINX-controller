@@ -1,4 +1,4 @@
-- name: Create a Component ADC
+- name: GET Component ADC
   uri:
     url: "https://{{ extra_nginx_controller_ip }}/api/v1/services/environments/env_{{ extra_nginx_controller_environment | lower }}/apps/app_{{ extra_app.name | lower }}.{{ extra_app.domain | lower }}/components/adc_{{ item.name | lower }}"
     method: GET
@@ -14,7 +14,7 @@
 - debug:
     var: results
 
-- name: Create a Component API "user NOT authenticated"
+- name: GET Component API "user NOT authenticated"
   uri:
     url: "https://{{ extra_nginx_controller_ip }}/api/v1/services/environments/env_{{ extra_nginx_controller_environment | lower }}/apps/app_{{ extra_app.name | lower }}.{{ extra_app.domain | lower }}/components/no-auth_{{ item.name | lower }}"
     method: GET
@@ -30,7 +30,7 @@
 - debug:
     var: results
 
-- name: Create a Component API "Authenticated users"
+- name: GET Component API "Authenticated users"
   uri:
     url: "https://{{ extra_nginx_controller_ip }}/api/v1/services/environments/env_{{ extra_nginx_controller_environment | lower }}/apps/app_{{ extra_app.name | lower }}.{{ extra_app.domain | lower }}/components/auth_{{ item.name | lower }}"
     method: GET
@@ -46,7 +46,7 @@
 - debug:
     var: results
 
-- name: Create a Component API "Admin users"
+- name: GET Component API "Admin users"
   uri:
     url: "https://{{ extra_nginx_controller_ip }}/api/v1/services/environments/env_{{ extra_nginx_controller_environment | lower }}/apps/app_{{ extra_app.name | lower }}.{{ extra_app.domain | lower }}/components/admin_{{ item.name | lower }}"
     method: GET

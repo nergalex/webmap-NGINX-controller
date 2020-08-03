@@ -69,6 +69,9 @@
   loop: "{{ extra_app.components }}"
   when: item.type == "api"
 
+- debug:
+    var: var_openapi_spec
+
 - name: IMPORT an API Definition Version
   uri:
     url: "https://{{ extra_nginx_controller_ip }}/api/v1/services/api-definitions/api_{{ item.name | lower}}/versions/{{ item.version | lower}}/import"

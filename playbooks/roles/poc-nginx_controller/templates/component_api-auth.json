@@ -9,9 +9,17 @@
       "uris": {},
       "gatewayRefs": [
         {
-          "ref": "/services/environments/env_{{extra_nginx_controller_environment | lower}}/gateways/gw_{{extra_vmss_name | lower}}"
+          "ref": "/services/environments/env_{{extra_nginx_controller_environment | lower}}/gateways/gw_{{extra_app.name | lower}}"
         }
       ]
+    },
+    "errorSetRef": {
+      "links": {
+        "rel": "/api/v1/services/errorsets/default-json",
+        "displayName": "Default JSON ErrorSet",
+        "name": "default-json"
+      },
+      "ref": "/services/errorsets/default-json"
     },
     "backend": {
       "ntlmAuthentication": "DISABLED",
@@ -37,9 +45,9 @@
       }
     },
     "logging": {
-      "errorLog": "DISABLED",
+      "errorLog": "ENABLED",
       "accessLog": {
-        "state": "DISABLED"
+        "state": "ENABLED"
       }
     },
     "security": {

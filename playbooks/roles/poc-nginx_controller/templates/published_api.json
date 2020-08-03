@@ -11,7 +11,7 @@
     },
     "gatewayRefs": [
       {
-        "ref": "/services/environments/env_{{extra_nginx_controller_environment | lower}}/gateways/gw_{{extra_vmss_name | lower}}"
+        "ref": "/services/environments/env_{{extra_nginx_controller_environment | lower}}/gateways/gw_{{extra_app.name | lower}}"
       }
     ]
   }

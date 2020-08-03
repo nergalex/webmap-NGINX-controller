@@ -1,11 +1,14 @@
 ``` yaml
 extra_app:
-  client_id: ******
+  gateways:
+    - instance: nginxapigw
+      location: azure-totalinbound
+  client_id: ***********
   components:
     - name: MapServer
       type: api
       openapi_spec_uri: >-
-        https://raw.githubusercontent.com/nergalex/webmap-NGINX-controller/master/swaggers/webmap.json
+        https://raw.githubusercontent.com/nergalex/webmap-NGINX-controller/master/swaggers/webmap_oas3.json
       version: v1.0.0
       workloads:
         - 'http://10.100.0.51'
@@ -14,12 +17,12 @@ extra_app:
     - name: Arcadia_api
       type: api
       openapi_spec_uri: >-
-        https://raw.githubusercontent.com/nergalex/webmap-NGINX-controller/master/swaggers/arcadia.json
+        https://raw.githubusercontent.com/nergalex/webmap-NGINX-controller/master/swaggers/arcadia_oas3.json
       version: v1.0.0
       workloads:
         - 'http://10.12.1.5:80'
       identityProviders:
-        - dev-******.okta.com
+        - dev-431905.okta.com
     - name: Arcadia_main
       type: adc
       uri: /
@@ -43,11 +46,10 @@ extra_app:
   domain: f5app.dev
   name: WebMap
 extra_idp:
-  dev-******.okta.com:
-    jwks_uri: 'https://dev-******.okta.com/oauth2/default/v1/keys'
-extra_nginx_controller_environment: POC
-extra_nginx_controller_ip: 10.0.0.16
-extra_nginx_controller_password: ******
-extra_nginx_controller_username: ******
-extra_vmss_name: nginxapigw
+  dev-431905.okta.com:
+    jwks_uri: 'https://***********.okta.com/oauth2/default/v1/keys'
+extra_nginx_controller_environment: ***********
+extra_nginx_controller_ip: 10.0.0.17
+extra_nginx_controller_password: ***********
+extra_nginx_controller_username: ***********
 ```
